@@ -1,27 +1,19 @@
-# Predictive Maintenance & Production Optimization
+Predictive Maintenance & Production Optimization
 
-An end-to-end ML pipeline that predicts machine failures 24 hours in advance and optimizes production scheduling based on machine health scores — reducing unplanned downtime by **34%** and saving **~120 hours/year** of manual monitoring.
+An end-to-end ML pipeline, built on simulated sensor data (8 machines, 90 days), that predicts machine failures 24 hours ahead and recommends maintenance windows from machine health scores.
 
----
+Business Problem
 
-## Business Problem
+Manufacturing plants suffer from unplanned machine downtime — the most expensive type of failure. Reactive maintenance (fix after failure) leads to:
 
-Manufacturing plants suffer from **unplanned machine downtime** — the most expensive type of failure. Reactive maintenance (fix after failure) leads to:
-- Production line stoppages (avg. 4–8 hours per incident)
-- Expensive emergency repairs
-- Missed delivery deadlines
+Production line stoppages
+Expensive emergency repairs
+Missed delivery deadlines
 
-This system shifts the approach from **reactive → predictive**, flagging at-risk machines before they fail.
+This system shifts the approach from reactive → predictive, flagging at-risk machines before they fail.
 
----
-
-## Project Architecture
-
-```
+Project Architecture
 Raw Sensor Data (SQL Server)
-        │
-        ▼
-  Data Ingestion (src/data_ingestion.py)
         │
         ▼
   Feature Engineering (src/feature_engineering.py)
@@ -43,42 +35,35 @@ Raw Sensor Data (SQL Server)
   Automated Report (src/report.py)
    - Excel report + matplotlib charts
    - Emailed daily at 6 AM via cron/Airflow
-```
+Tech Stack
+Layer	Technology
+Language	Python 3.10
+Data Processing	pandas, numpy
+Machine Learning	scikit-learn, imbalanced-learn
+Explainability	SHAP
+Database	SQL Server (pyodbc / SQLAlchemy)
+Visualization	matplotlib, seaborn
+Scheduling	Apache Airflow / cron
+Reporting	openpyxl, smtplib
+Results
 
----
+Evaluated on a held-out test set (20%, stratified random split) of simulated data:
 
-## Tech Stack
+Metric	Score
+Accuracy	0.98
+Recall (failures caught)	0.76
+Precision	0.88
+F1	0.81
+ROC-AUC	0.97
 
-| Layer | Technology |
-|-------|-----------|
-| Language | Python 3.10 |
-| Data Processing | pandas, numpy |
-| Machine Learning | scikit-learn, imbalanced-learn |
-| Explainability | SHAP |
-| Database | SQL Server (pyodbc / SQLAlchemy) |
-| Visualization | matplotlib, seaborn |
-| Scheduling | Apache Airflow / cron |
-| Reporting | openpyxl, smtplib |
+Note: data is simulated, so these scores show the pipeline works end to end, not real plant performance. Next step: time-based validation and testing on real sensor data.
 
----
+Feature importance
 
-## Results
-
-| Metric | Before | After |
-|--------|--------|-------|
-| Unplanned downtime | 12 hrs/month | 8 hrs/month |
-| Failure prediction accuracy | — | 87% |
-| Recall (catching real failures) | — | 91% |
-| Manual monitoring hours saved | — | 120 hrs/year |
-| Maintenance cost reduction | — | ~22% |
-
----
-
-## Setup & Run
-
-```bash
+Setup & Run
+bash
 # 1. Clone repo
-git clone https://github.com/yourusername/predictive-maintenance.git
+git clone https://github.com/Datawithkaibalya/predictive-maintenance.git
 cd predictive-maintenance
 
 # 2. Install dependencies
@@ -91,13 +76,7 @@ python data/generate_data.py
 python main.py
 
 # 5. View outputs in /outputs folder
-```
-
----
-
-## Project Structure
-
-```
+Project Structure
 predictive-maintenance/
 ├── README.md
 ├── requirements.txt
@@ -109,31 +88,22 @@ predictive-maintenance/
 │   ├── schema.sql               # Table definitions
 │   └── queries.sql              # Analytical SQL queries
 ├── src/
-│   ├── data_ingestion.py        # SQL extraction
 │   ├── feature_engineering.py   # Feature creation
 │   ├── model.py                 # ML training & inference
 │   ├── optimizer.py             # Production scheduling optimizer
 │   └── report.py                # Automated Excel + email report
 ├── outputs/                     # Generated reports, charts
 └── logs/                        # Pipeline execution logs
-```
+Key Technical Decisions
 
----
+Why Random Forest? Handles many engineered features well, and SHAP explainability gives clear per-machine reasons for each prediction.
 
-## Key Technical Decisions
+Why SMOTE for imbalance? Failures are rare (~5% of records). SMOTE oversamples the minority class inside the training folds only, so there is no leakage into validation.
 
-**Why Random Forest over XGBoost?**
-SHAP integration is more stable and the maintenance team needed clear, per-machine explanations. Accuracy difference was marginal (87% vs 89%).
+Why Recall over Accuracy? Missing a real failure costs far more than a false alarm, so recall and precision are tracked instead of accuracy alone.
 
-**Why SMOTE for imbalance?**
-Failures are rare (~6% of records). SMOTE oversampled the minority class in training data. Stratified k-fold ensured each fold preserved the real class ratio.
+Author
 
-**Why Recall over Accuracy?**
-Missing a real failure (false negative) costs thousands in downtime. A false alarm costs only a technician's inspection time. High recall (91%) is the right trade-off.
+Kaibalya Prasad Rout. Personal project inspired by real plant maintenance problems. All data is simulated.
 
----
-
-## Author
-
-Built as part of a real-world manufacturing analytics engagement.  
-Stack: Python · SQL Server · scikit-learn · Airflow
+Stack: Python · SQL · scikit-learn · SHAP · Airflow
