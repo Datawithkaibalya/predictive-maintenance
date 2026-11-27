@@ -13,7 +13,7 @@ Missed delivery deadlines
 This system shifts the approach from reactive → predictive, flagging at-risk machines before they fail.
 
 Project Architecture
-Raw Sensor Data (SQL Server)
+Sensor Data (simulated CSV, or SQL Server via config.py)
         │
         ▼
   Feature Engineering (src/feature_engineering.py)
@@ -63,7 +63,7 @@ Feature importance
 Setup & Run
 bash
 # 1. Clone repo
-git clone https://github.com/Datawithkaibalya/predictive-maintenance.git
+git clone https://github.com/Datawithkaibalya/predictive-maintenance.git  # use your repo's actual URL
 cd predictive-maintenance
 
 # 2. Install dependencies
@@ -82,6 +82,7 @@ predictive-maintenance/
 ├── requirements.txt
 ├── config.py                    # DB credentials, model params
 ├── main.py                      # Pipeline orchestrator
+├── airflow_dag.py               # Daily scheduling (Airflow)
 ├── data/
 │   └── generate_data.py         # Synthetic sensor data generator
 ├── sql/
